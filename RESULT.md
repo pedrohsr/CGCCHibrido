@@ -1,0 +1,2 @@
+# Resultado
+![plot](print.png)
