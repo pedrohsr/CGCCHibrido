@@ -58,6 +58,7 @@ const GLchar* fragmentShaderSource = "#version 450\n"
 "}\n\0";
 
 bool rotateX=false, rotateY=false, rotateZ=false;
+double valueX = 0.0f, valueY = 0.0f, valueZ = 0.0f, scaleValue = 0.0f;
 
 // Função MAIN
 int main()
@@ -115,6 +116,7 @@ int main()
 
 	glm::mat4 model = glm::mat4(1); //matriz identidade;
 	GLint modelLoc = glGetUniformLocation(shaderID, "model");
+
 	//
 	model = glm::rotate(model, /*(GLfloat)glfwGetTime()*/glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	glUniformMatrix4fv(modelLoc, 1, false, glm::value_ptr(model));
@@ -153,18 +155,22 @@ int main()
 			model = glm::rotate(model, angle, glm::vec3(0.0f, 0.0f, 1.0f));
 
 		}
+		if (valueX != 0.0f || valueY != 0.0f || valueZ != 0.0f) {
+			model = glm::rotate(model, angle, glm::vec3(valueX, valueY, valueZ));
+		}
+		model = glm::scale(model, glm::vec3(0.5f + scaleValue, 0.5f + scaleValue, 0.5f + scaleValue));
 
 		glUniformMatrix4fv(modelLoc, 1, false, glm::value_ptr(model));
 		// Chamada de desenho - drawcall
 		// Poligono Preenchido - GL_TRIANGLES
 		
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 18);
+		glDrawArrays(GL_TRIANGLES, 0, 64);
 
 		// Chamada de desenho - drawcall
 		// CONTORNO - GL_LINE_LOOP
 		
-		glDrawArrays(GL_POINTS, 0, 18);
+		glDrawArrays(GL_POINTS, 0, 64);
 		glBindVertexArray(0);
 
 		// Troca os buffers da tela
@@ -182,6 +188,9 @@ int main()
 // ou solta via GLFW
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
+	float angle = (GLfloat)glfwGetTime();
+
+	glm::mat4 model = glm::mat4(1);
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
 
@@ -206,8 +215,51 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		rotateZ = true;
 	}
 
+	if (key == GLFW_KEY_W && action == GLFW_PRESS)
+	{
+		valueX = 1.0f;
+	}
+	else if (key == GLFW_KEY_S && action == GLFW_PRESS)
+	{
+		valueX = -1.0f;
+	
+	}
+	else if ((key == GLFW_KEY_W || key == GLFW_KEY_S) && action == GLFW_RELEASE) {
+		valueX = 0.0f;
+	}
+
+	if (key == GLFW_KEY_D && action == GLFW_PRESS)
+	{
+		valueY = -1.0f;
+	}
+	else if (key == GLFW_KEY_A && action == GLFW_PRESS)
+	{
+		valueY = 1.0f;
+	}
+	else if ((key == GLFW_KEY_D || key == GLFW_KEY_A) && action == GLFW_RELEASE) {
+		valueY = 0.0f;
+	}
+
+	if (key == GLFW_KEY_I && action == GLFW_PRESS) {
+		valueZ = 1.0f;
+	}
+	else if (key == GLFW_KEY_J && action == GLFW_PRESS) {
+		valueZ = -1.0f;
+	}
+	else if ((key == GLFW_KEY_I || key == GLFW_KEY_J) && action == GLFW_RELEASE) {
+		valueZ = 0.0f;
+	}
 
 
+	if ((key == GLFW_KEY_LEFT_BRACKET || key == GLFW_KEY_BACKSLASH) && action == GLFW_PRESS && scaleValue > -0.2f)
+	{
+		scaleValue -= 0.05f;
+	}
+
+	if (key == GLFW_KEY_RIGHT_BRACKET && action == GLFW_PRESS && scaleValue < 0.2f)
+	{
+		scaleValue += 0.05f;
+	}
 }
 
 //Esta função está basntante hardcoded - objetivo é compilar e "buildar" um programa de
@@ -271,36 +323,62 @@ int setupGeometry()
 	// Pode ser arazenado em um VBO único ou em VBOs separados
 	GLfloat vertices[] = {
 
-		//Base da pirâmide: 2 triângulos
+		//Base do cubo: 2 triângulos
 		//x    y    z    r    g    b
 		-0.5, -0.5, -0.5, 1.0, 1.0, 0.0,
 		-0.5, -0.5,  0.5, 0.0, 1.0, 1.0,
 		 0.5, -0.5, -0.5, 1.0, 0.0, 1.0,
 
-		 -0.5, -0.5, 0.5, 1.0, 1.0, 0.0,
-		  0.5, -0.5,  0.5, 0.0, 1.0, 1.0,
-		  0.5, -0.5, -0.5, 1.0, 0.0, 1.0,
+		-0.5, -0.5,  0.5, 1.0, 1.0, 0.0,
+		 0.5, -0.5,  0.5, 0.0, 1.0, 1.0,
+		 0.5, -0.5, -0.5, 1.0, 0.0, 1.0,
 
-		 //
-		 -0.5, -0.5, -0.5, 1.0, 1.0, 0.0,
-		  0.0,  0.5,  0.0, 1.0, 1.0, 0.0,
-		  0.5, -0.5, -0.5, 1.0, 1.0, 0.0,
+		//Topo do cubo: 2 triângulos
+		//x    y    z    r    g    b
+		 0.5,  0.5,  0.5, 1.0, 1.0, 0.0,
+		 0.5,  0.5, -0.5, 0.0, 1.0, 1.0,
+		-0.5,  0.5,  0.5, 1.0, 0.0, 1.0,
 
-		  -0.5, -0.5, -0.5, 1.0, 0.0, 1.0,
-		  0.0,  0.5,  0.0, 1.0, 0.0, 1.0,
-		  -0.5, -0.5, 0.5, 1.0, 0.0, 1.0,
+		 0.5,  0.5, -0.5, 1.0, 1.0, 0.0,
+		-0.5,  0.5, -0.5, 0.0, 1.0, 1.0,
+		-0.5,  0.5,  0.5, 1.0, 0.0, 1.0,
 
-		   -0.5, -0.5, 0.5, 1.0, 1.0, 0.0,
-		  0.0,  0.5,  0.0, 1.0, 1.0, 0.0,
-		  0.5, -0.5, 0.5, 1.0, 1.0, 0.0,
+		//Yellow
+		-0.5, -0.5, -0.5, 1.0, 1.0, 0.0,
+		 0.5,  0.5, -0.5, 1.0, 1.0, 0.0,
+		 0.5, -0.5, -0.5, 1.0, 1.0, 0.0,
 
-		   0.5, -0.5, 0.5, 0.0, 1.0, 1.0,
-		  0.0,  0.5,  0.0, 0.0, 1.0, 1.0,
-		  0.5, -0.5, -0.5, 0.0, 1.0, 1.0,
+		-0.5, -0.5, -0.5, 1.0, 1.0, 0.0,
+		-0.5,  0.5, -0.5, 1.0, 1.0, 0.0,
+		 0.5,  0.5, -0.5, 1.0, 1.0, 0.0,
+		 
+		//Magenta
+		-0.5, -0.5, -0.5, 1.0, 0.0, 1.0,
+		-0.5,  0.5,  0.5, 1.0, 0.0, 1.0,
+		-0.5, -0.5,  0.5, 1.0, 0.0, 1.0,
 
+		-0.5, -0.5, -0.5, 1.0, 0.0, 1.0,
+		-0.5,  0.5, -0.5, 1.0, 0.0, 1.0,
+		-0.5,  0.5,  0.5, 1.0, 0.0, 1.0,
 
+		//Yellow
+		-0.5, -0.5,  0.5, 1.0, 1.0, 0.0,
+		-0.5,  0.5,  0.5, 1.0, 1.0, 0.0,
+		 0.5, -0.5,  0.5, 1.0, 1.0, 0.0,
+
+		-0.5,  0.5,  0.5, 1.0, 1.0, 0.0,
+		 0.5,  0.5,  0.5, 1.0, 1.0, 0.0,
+		 0.5, -0.5,  0.5, 1.0, 1.0, 0.0,
+
+		//Cyan
+		 0.5, -0.5,  0.5, 0.0, 1.0, 1.0,
+		 0.5,  0.5, -0.5, 0.0, 1.0, 1.0,
+		 0.5, -0.5, -0.5, 0.0, 1.0, 1.0,
+
+		 0.5, -0.5,  0.5, 0.0, 1.0, 1.0,
+		 0.5,  0.5,  0.5, 0.0, 1.0, 1.0,
+		 0.5,  0.5, -0.5, 0.0, 1.0, 1.0,
 	};
-
 	GLuint VBO, VAO;
 
 	//Geração do identificador do VBO
