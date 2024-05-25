@@ -110,7 +110,7 @@ int main()
 	projection = glm::ortho(-3.0, 3.0, -3.0, 3.0, -1.0, 1.0);
 
 	GLint projLoc = glGetUniformLocation(shader.ID, "projection");
-	glUniformMatrix4fv(projLoc, 1, FALSE, glm::value_ptr(projection));
+	glUniformMatrix4fv(projLoc, 1, false, glm::value_ptr(projection));
 
 
 	glEnable(GL_DEPTH_TEST);
@@ -139,7 +139,7 @@ int main()
 		model = glm::rotate(model, (float)glfwGetTime() /*glm::radians(90.0f)*/, glm::vec3(0, 1, 0));
 		//model = glm::scale(model, glm::vec3(1920.0 * 0.5, 1080.0 * 0.5, 1.0));
 		GLint modelLoc = glGetUniformLocation(shader.ID, "model");
-		glUniformMatrix4fv(modelLoc, 1, FALSE, glm::value_ptr(model));
+		glUniformMatrix4fv(modelLoc, 1, false, glm::value_ptr(model));
 
 		//Ativando o primeiro buffer de textura (0) e conectando ao identificador gerado
 		glActiveTexture(GL_TEXTURE0);
